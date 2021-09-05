@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"mvc/lib/database"
+	"mvc/middlewares"
 	"mvc/models"
 	"net/http"
 	"strconv"
@@ -24,6 +25,13 @@ func GetUserController(c echo.Context) error {
 
 func GetSingleController(c echo.Context) error {
 	id, e := strconv.Atoi(c.Param("id"))
+
+	loggedUserId := middlewares.ExtractToken(c)
+	if loggedUserId != id {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"messages": "can't access other accounts",
+		})
+	}
 
 	if e != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, e.Error())
@@ -60,6 +68,14 @@ func CreateUserController(c echo.Context) error {
 func DeleteUserController(c echo.Context) error {
 	id, e := strconv.Atoi(c.Param("id"))
 
+	loggedUserId := middlewares.ExtractToken(c)
+
+	if loggedUserId != id {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"messages": "can't access other accounts",
+		})
+	}
+
 	if e != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, e.Error())
 	}
@@ -80,6 +96,15 @@ func DeleteUserController(c echo.Context) error {
 
 func UpdateUserController(c echo.Context) error {
 	id, e := strconv.Atoi(c.Param("id"))
+
+	loggedUserId := middlewares.ExtractToken(c)
+
+	if loggedUserId != id {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"messages": "can't access other accounts",
+		})
+	}
+
 	if e != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, e.Error())
 	}
@@ -125,6 +150,14 @@ func LoginUserController(c echo.Context) error {
 
 func GetUserDetailController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
+
+	loggedUserId := middlewares.ExtractToken(c)
+
+	if loggedUserId != id {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"messages": "can't access other accounts",
+		})
+	}
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
